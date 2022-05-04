@@ -1,0 +1,14 @@
+;; shadow-cljs configuration
+{:deps {:aliases [:shadow-cljs]}
+
+ :nrepl
+ {:port 8702}
+
+ :builds
+ {:frontend
+  {:target :browser
+   :modules {:main {:init-fn playground.index/init}}
+
+   :devtools
+   {:http-root   "public"
+    :http-port   3000}}}}
