@@ -1,5 +1,5 @@
 ;; shadow-cljs configuration
-{:deps {:aliases [:shadow-cljs]}
+{:deps {:aliases [:cljs]}
 
  :nrepl
  {:port 8702}
@@ -11,4 +11,4 @@
 
    :devtools
    {:http-root   "public"
-    :http-port   3000}}}}
+    :http-port   3300}}}}

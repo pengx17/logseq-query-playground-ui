@@ -6,6 +6,7 @@
     "dev": "shadow-cljs watch frontend"
   },
   "dependencies": {
+    "browser-fs-access": "^0.29.5",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },
