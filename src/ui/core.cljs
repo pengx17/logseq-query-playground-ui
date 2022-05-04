@@ -1,4 +1,4 @@
-(ns playground.index
+(ns ui.core
   (:require [rum.core :as rum]
             ["browser-fs-access" :as fs]
             [datascript.transit :as dt]
@@ -29,17 +29,18 @@
            [:<>
             [:div.font-light.text-xl "Graph DB Path"]
             [:div.flex
-             [:input.border-2.border-r-0.border-gray-500.p-2.w-full
-              {:placeholder "Enter graph db path"
-               :required true
-               :on-change (fn [e] (set-local-value! (.. e -target -value)))
-                     ;; validate if this is a valid path
-                     ;; :pattern #".transit$"
-               :value local-value}]
+            ;;  [:input.border-2.border-r-0.border-gray-500.p-2.w-full
+            ;;   {:placeholder "Enter graph db path"
+            ;;    :required true
+            ;;    :on-change (fn [e] (set-local-value! (.. e -target -value)))
+            ;;          ;; validate if this is a valid path
+            ;;          ;; :pattern #".transit$"
+            ;;    :value local-value}]
              [:button.border-2.border-gray-500.px-4.hover:bg-gray-100.active:bg-gray-200
               {:on-click (fn []
-                           (fs/fileOpen (clj->js {}))
-                           (on-change local-value))} "Save"]]]]]))
+                           (fs/fileOpen (clj->js {:extensions [".transit"]
+                                                  :startIn "documents"}))
+                           (on-change local-value))} "Load DB File"]]]]]))
 
 (defn set-graph-db-path! [path]
   (store-to-local-storage! path-persisted-key path)

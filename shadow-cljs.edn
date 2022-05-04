@@ -5,10 +5,13 @@
  {:port 8702}
 
  :builds
- {:frontend
-  {:target :browser
-   :modules {:main {:init-fn playground.index/init}}
+ {:frontend {:target :browser
+             :source-map true
+             :modules {:main {:init-fn ui.core/init}}
+             :devtools
+             {:http-root   "public"
+              :http-port   3300}}
 
-   :devtools
-   {:http-root   "public"
-    :http-port   3300}}}}
+  :server {:target :node-script
+           :main server.core/server
+           :output-to ".dist/main.js"}}}

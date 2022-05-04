@@ -3,12 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "shadow-cljs watch frontend"
+    "dev": "shadow-cljs watch frontend server",
+    "dev:ui": "shadow-cljs watch frontend,watch",
+    "dev:server": "shadow-cljs watch server"
   },
   "dependencies": {
     "browser-fs-access": "^0.29.5",
+    "concat-stream": "^2.0.0",
+    "content-type": "^1.0.4",
+    "cookies": "^0.8.0",
+    "lru": "^3.1.0",
+    "qs": "^6.10.3",
+    "random-bytes": "^1.0.0",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "xregexp": "^5.1.0"
   },
   "devDependencies": {
     "shadow-cljs": "^2.18.0"
