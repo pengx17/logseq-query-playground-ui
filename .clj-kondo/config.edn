@@ -11,6 +11,7 @@
  :lint-as {promesa.core/let clojure.core/let
            promesa.core/loop clojure.core/loop
            promesa.core/recur clojure.core/recur
+           promesa.core/->> clojure.core/->>
            garden.def/defstyles clojure.core/def
            garden.def/defkeyframes clojure.core/def
            rum.core/defcc rum.core/defc

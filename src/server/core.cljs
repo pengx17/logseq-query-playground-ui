@@ -3,6 +3,8 @@
             [reitit.ring :as ring]
             [macchiato.middleware.params :as params]
             [reitit.ring.coercion :as rrc]
+            [server.graphs :as graphs]
+            [promesa.core :as p]
             [macchiato.middleware.restful-format :as rf]))
 
 (defn wrap-body-to-params
@@ -33,14 +35,11 @@
                       :body   {:message "Truly internal server error"}})))))))
 
 (def routes
-  [["/test"
-    {:get  {:parameters {:query {:name string?}}
-            :responses  {200 {:body {:message string?}}}
-            :handler    (fn [request respond _]
-                          (respond {:status 200 :body {:message (str "Hello: " (-> request :parameters :query :name))}}))}
-     :post {:parameters {:body {:my-body string?}}
-            :handler    (fn [request respond _]
-                          (respond {:status 200 :body {:message (str "Hello: " (-> request :parameters :body :my-body))}}))}}]])
+  [["/graphs" {:responses {200 {:body {:message string?}}}
+               :handler (fn [_ respond _]
+                          (p/let [graphs graphs/graph-paths]
+                            (respond {:status 200
+                                      :body   {:graphs graphs}})))}]])
 
 (def app
   (ring/ring-handler
