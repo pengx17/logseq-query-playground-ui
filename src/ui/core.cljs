@@ -84,8 +84,9 @@
           [:<>
            [:div (if data (str "Count: " (count data)) "loading ...")]
            (map-indexed
-            (fn [idx row] [:pre.whitespace-pre-wrap.py-2.hover:bg-gray-100 {:key idx}
-                           (edn->str row)])
+            (fn [idx row]
+              [:pre.whitespace-pre-wrap.py-2.hover:bg-gray-100 {:key idx}
+               (edn->str row)])
             data)])]
        [:span "no graph selected"]))])
 
