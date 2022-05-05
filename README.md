@@ -1,4 +1,6 @@
 # logseq-query-playground-ui
 
-STILL WIP
-<img width="829" alt="image" src="https://user-images.githubusercontent.com/584378/166872096-e440c63f-cfa0-4a37-8dac-ce9f2e319b38.png">
+Learning a hybrid web app building with ClojureScript. The query logic is from https://github.com/logseq/nbb-logseq  
+
+https://user-images.githubusercontent.com/584378/166985365-75d8706a-4b13-4b6f-8078-a1804c411d96.mp4
+
