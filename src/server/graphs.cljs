@@ -2,6 +2,9 @@
   (:require ["fs$promises" :as fsp]
             [promesa.core :as p]
             ["path" :as path]
+            [datascript.transit :as dt]
+            [datascript.core :as d]
+            [clojure.edn :as edn]
             ["os" :as os]))
 
 (defn expand-home
@@ -46,3 +49,15 @@
 (def graph-paths
   (p/->> (get-graph-paths)
          (mapv (juxt full-path->graph identity))))
+
+(defn run-query
+  [graph-name query-string]
+  (p/let [query (edn/read-string query-string)
+          db-path (get-graph-path graph-name)
+          db-str (slurp db-path)
+          db (dt/read-transit-str db-str)
+          res (->> db
+                   (d/q query)
+                   flatten
+                   vec)]
+    res))

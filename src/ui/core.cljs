@@ -1,38 +1,42 @@
 (ns ui.core
-  (:require [rum.core :as rum]
-            ["swr$default" :as use-swr]
-            [datascript.transit :as dt]
-            [datascript.core :as d]
-            [clojure.pprint :as pprint]
+  (:require ["swr$default" :as use-swr]
             [clojure.edn :as edn]
-            [promesa.core :as p]))
+            [clojure.pprint :as pprint]
+            [promesa.core :as p]
+            [rum.core :as rum]
+            [ui.code :as code]))
 
 ;; fetcher for swr
 (defn fetcher
-  [path]
-  (p/let [resp (js/fetch (str "http://localhost:3301" path))
-          resp-json (.json resp)]
-    resp-json))
+  ([path]
+   (fetcher path #js{:method "get"}))
+  ([path opts]
+   (p/let [resp (js/fetch (str "http://localhost:3301" path) opts)
+           resp-json (.json resp)]
+     resp-json)))
+
+(def graphs-fetcher fetcher)
+(defn graphs-query-fetcher
+  [[graph-name query]]
+  (fetcher (str "/graphs/" graph-name "?query=" query)))
 
 (defn use-graphs []
-  (let [resp (use-swr "/graphs" fetcher)
+  (let [resp (use-swr "/graphs" graphs-fetcher)
         data (.-data resp)
-        loading (nil? (.-data resp))
+        loading (nil? data)
         graphs (when-not loading (.-graphs data))]
     graphs))
 
-(defn use-graph-db [graph-name]
-  (let [resp (use-swr (and graph-name (str "/graphs/" graph-name)) fetcher)
+(defn use-graph-query [graph-name query-string]
+  (let [param (rum/use-memo
+               #(and graph-name query-string [graph-name query-string])
+               [graph-name query-string])
+        resp (use-swr param graphs-query-fetcher)
         data (.-data resp)
-        loading (nil? (.-data resp))
-        db-str (when-not loading (.-data data))
-        [db set-db] (rum/use-state nil)]
-    (rum/use-effect!
-     (fn []
-       (when-not (empty? db-str)
-         (set-db (dt/read-transit-str db-str)))
-       #()) [db-str])
-    db))
+        loading (nil? data)
+        error (when (not loading) (.-message data))
+        data (when-not (or loading error) (-> data .-data edn/read-string))]
+    [data error]))
 
 (rum/defc graphs-select
   "A control that shows all locally install graphs"
@@ -65,39 +69,32 @@
 
 (defn edn->str [obj] (with-out-str (pprint/pprint obj)))
 
-(rum/defc graph-query [db]
+(rum/defc graph-query [graph-name]
   [:div
    (let [[query-string set-query] (rum/use-state (edn->str query-edn))
-         [res set-res] (rum/use-state nil)]
-     (rum/use-effect!
-      (fn []
-        (when (and db query-string)
-          (try
-            (let [query (edn/read-string query-string)
-                  res (->> db
-                           (d/q query)
-                           flatten
-                           vec)]
-              (set-res res))
-            (catch :default e (println e))))
-        #())
-       [query-string db])
-     (if db
+         [data error] (use-graph-query graph-name query-string)]
+     (if graph-name
        [:div.relative
-        [:textarea.border-2.border-gray-500.w-full.p-2.top-0.sticky.h-48.font-mono
+        [:textarea.border-2.border-gray-500.w-full.p-2.top-0.sticky.h-48.font-mono.hidden
          {:value query-string
           :on-change (fn [e] (set-query (.. e -target -value)))}]
-        [:div "Count: " (count res)]
-        [:pre.whitespace-pre-wrap (edn->str res)]]
+        (code/editor query-string set-query)
+        (if error
+          [:span.text-red-500 error]
+          [:<>
+           [:div (if data (str "Count: " (count data)) "loading ...")]
+           (map-indexed
+            (fn [idx row] [:pre.whitespace-pre-wrap.py-2.hover:bg-gray-100 {:key idx}
+                           (edn->str row)])
+            data)])]
        [:span "no graph selected"]))])
 
 (rum/defc main []
   [:div.p-4
-   (let [[graph set-graph] (rum/use-state nil)
-         db (use-graph-db graph)]
+   (let [[graph set-graph] (rum/use-state nil)]
      [:div
       (graphs-select graph set-graph)
-      (graph-query db)])])
+      (graph-query graph)])])
 
 (defn ^:dev/after-load  start []
   ;; start is called by init and after code reloading finishes

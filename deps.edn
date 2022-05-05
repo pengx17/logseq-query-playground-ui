@@ -9,7 +9,10 @@
   datascript-transit/datascript-transit {:mvn/version "0.3.0"}
   funcool/promesa                       {:mvn/version "8.0.450"}
   macchiato/core                        {:mvn/version "0.2.22"}
-  metosin/reitit                        {:mvn/version "0.5.18"}}
+  metosin/reitit                        {:mvn/version "0.5.18"}
+  applied-science/js-interop            {:mvn/version "0.3.3"}
+  nextjournal/clojure-mode              {:git/url "https://github.com/nextjournal/clojure-mode"
+                                         :sha "a83c87cd2bd2049b70613f360336a096d15c5518"}}
 
  :aliases
  {:cljs

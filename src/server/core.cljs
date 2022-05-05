@@ -64,20 +64,32 @@
       (respond {:status 404
                 :body   {:message "Not found"}}))))
 
+(defn run-graph-query-handler [request respond]
+  (p/catch
+   (p/let [graph-name (get-in request [:path-params :name])
+           query (get-in request [:query-params "query"])
+           data (graphs/run-query graph-name query)]
+     (respond {:status 200
+               :body  {:name graph-name
+                       :data (pr-str data)}}))
+   (fn [e]
+     (respond {:status 500
+               :body   {:message (.-message e)}}))))
+
 (def routes
   [["/graphs"       {:get get-graphs-handler}]
-   ["/graphs/:name" {:get get-graph-handler}]])
+   ["/graphs/:name" {:get run-graph-query-handler}]])
 
 (def app
   (ring/ring-handler
    (ring/router
     [routes]
     {:data {:middleware [params/wrap-params
-                         #(rf/wrap-restful-format % {:keywordize? true})
+                         wrap-cors-header
+                         #(rf/wrap-restful-format % {:keywordize? false})
                          wrap-body-to-params
                          wrap-coercion-exception
                          wrap-content-type-json
-                         wrap-cors-header
                          rrc/coerce-request-middleware
                          rrc/coerce-response-middleware]}})
    (ring/create-default-handler)))
