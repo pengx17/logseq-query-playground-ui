@@ -14,7 +14,7 @@
 
 (defn slurp
   [file]
-  (fsp/readFile file))
+  (fsp/readFile file "utf8"))
 
 (defn file-exists?
   [file]

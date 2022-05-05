@@ -1,11 +1,12 @@
 (ns server.core
-  (:require [macchiato.server :as http]
-            [reitit.ring :as ring]
-            [macchiato.middleware.params :as params]
-            [reitit.ring.coercion :as rrc]
-            [server.graphs :as graphs]
+  (:require [macchiato.middleware.params :as params]
+            [macchiato.middleware.restful-format :as rf]
+            [macchiato.server :as http]
+            [macchiato.util.response :refer [content-type]]
             [promesa.core :as p]
-            [macchiato.middleware.restful-format :as rf]))
+            [reitit.ring :as ring]
+            [reitit.ring.coercion :as rrc]
+            [server.graphs :as graphs]))
 
 (defn wrap-body-to-params
   [handler]
@@ -13,6 +14,12 @@
     (handler (-> request
                  (assoc-in [:params :body-params] (:body request))
                  (assoc :body-params (:body request))) respond raise)))
+
+;; Wrap all response's content type with json type
+(defn wrap-content-type-json
+  [handler]
+  (fn [request respond _]
+    (handler request #(respond (content-type % "application/json")))))
 
 (defn wrap-coercion-exception
   "Catches potential synchronous coercion exception in middleware chain"
@@ -34,12 +41,27 @@
             (respond {:status 500
                       :body   {:message "Truly internal server error"}})))))))
 
+(defn get-graphs-handler [_ respond]
+  (p/let [graphs graphs/graph-paths]
+    (respond {:status 200
+              :body   {:graphs (map first graphs)}})))
+
+(defn get-graph-handler [request respond]
+  (p/let [graphs graphs/graph-paths
+          graph-name (get-in request [:path-params :name])
+          graph (some (fn [g]
+                        (= (first g) graph-name) g) graphs)]
+    (if graph
+      (p/let [data (graphs/slurp (second graph))]
+        (respond {:status 200
+                  :body  {:name graph-name
+                          :data data}}))
+      (respond {:status 404
+                :body   {:message "Not found"}}))))
+
 (def routes
-  [["/graphs" {:responses {200 {:body {:message string?}}}
-               :handler (fn [_ respond _]
-                          (p/let [graphs graphs/graph-paths]
-                            (respond {:status 200
-                                      :body   {:graphs graphs}})))}]])
+  [["/graphs"       {:get get-graphs-handler}]
+   ["/graphs/:name" {:get get-graph-handler}]])
 
 (def app
   (ring/ring-handler
@@ -49,17 +71,26 @@
                          #(rf/wrap-restful-format % {:keywordize? true})
                          wrap-body-to-params
                          wrap-coercion-exception
+                         wrap-content-type-json
                          rrc/coerce-request-middleware
                          rrc/coerce-response-middleware]}})
    (ring/create-default-handler)))
 
+(def *server-instance (atom nil))
 
 (defn server []
-  (println "Hey I am running now!")
+  (println "starting server ...")
   (let [host "127.0.0.1"
         port 3301]
-    (http/start
-     {:handler    app
-      :host       host
-      :port       port
-      :on-success #(println "macchiato-test started on" host ":" port)})))
+    (reset! *server-instance
+            (http/start
+             {:handler    app
+              :host       host
+              :port       port
+              :on-success #(println "macchiato server started on" host ":" port)}))))
+
+(defn ^:dev/before-load stop []
+  (swap! *server-instance
+         (fn [v] (when-not (nil? v)
+                   (.close @*server-instance)
+                   (js/console.log "stopping existing server ...")))))

@@ -5,14 +5,16 @@
   "scripts": {
     "dev": "shadow-cljs watch frontend server",
     "dev:ui": "shadow-cljs watch frontend,watch",
-    "dev:server": "shadow-cljs watch server"
+    "dev:server": "concurrently \"shadow-cljs watch server\" \"nodemon --watch .dist .dist/main.js\""
   },
   "dependencies": {
     "browser-fs-access": "^0.29.5",
     "concat-stream": "^2.0.0",
+    "concurrently": "^7.1.0",
     "content-type": "^1.0.4",
     "cookies": "^0.8.0",
     "lru": "^3.1.0",
+    "nodemon": "^2.0.16",
     "qs": "^6.10.3",
     "random-bytes": "^1.0.0",
     "react": "^17.0.0",
