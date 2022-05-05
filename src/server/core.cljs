@@ -2,7 +2,7 @@
   (:require [macchiato.middleware.params :as params]
             [macchiato.middleware.restful-format :as rf]
             [macchiato.server :as http]
-            [macchiato.util.response :refer [content-type]]
+            [macchiato.util.response :refer [content-type header]]
             [promesa.core :as p]
             [reitit.ring :as ring]
             [reitit.ring.coercion :as rrc]
@@ -20,6 +20,11 @@
   [handler]
   (fn [request respond _]
     (handler request #(respond (content-type % "application/json")))))
+
+(defn wrap-cors-header
+  [handler]
+  (fn [request respond _]
+    (handler request #(respond (header % "Access-Control-Allow-Origin" "*")))))
 
 (defn wrap-coercion-exception
   "Catches potential synchronous coercion exception in middleware chain"
@@ -50,7 +55,7 @@
   (p/let [graphs graphs/graph-paths
           graph-name (get-in request [:path-params :name])
           graph (some (fn [g]
-                        (= (first g) graph-name) g) graphs)]
+                        (when (= (first g) graph-name) g)) graphs)]
     (if graph
       (p/let [data (graphs/slurp (second graph))]
         (respond {:status 200
@@ -72,6 +77,7 @@
                          wrap-body-to-params
                          wrap-coercion-exception
                          wrap-content-type-json
+                         wrap-cors-header
                          rrc/coerce-request-middleware
                          rrc/coerce-response-middleware]}})
    (ring/create-default-handler)))

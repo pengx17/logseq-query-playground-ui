@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "shadow-cljs watch frontend server",
-    "dev:ui": "shadow-cljs watch frontend,watch",
+    "dev": "concurrently \"shadow-cljs watch frontend server\" \"nodemon --watch .dist .dist/main.js\"",
+    "dev:ui": "shadow-cljs watch frontend",
     "dev:server": "concurrently \"shadow-cljs watch server\" \"nodemon --watch .dist .dist/main.js\""
   },
   "dependencies": {
@@ -13,12 +13,16 @@
     "concurrently": "^7.1.0",
     "content-type": "^1.0.4",
     "cookies": "^0.8.0",
+    "etag": "^1.8.1",
     "lru": "^3.1.0",
+    "multiparty": "^4.2.3",
     "nodemon": "^2.0.16",
     "qs": "^6.10.3",
     "random-bytes": "^1.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "simple-encryptor": "^4.0.0",
+    "swr": "^1.3.0",
     "xregexp": "^5.1.0"
   },
   "devDependencies": {
