@@ -58,6 +58,5 @@
           db (dt/read-transit-str db-str)
           res (->> db
                    (d/q query)
-                   flatten
                    vec)]
     res))
