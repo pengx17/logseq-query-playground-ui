@@ -5,6 +5,7 @@
             [promesa.core :as p]
             [rum.core :as rum]
             [ui.code :as code]
+            [ui.example-queries :as examples]
             ["shiki" :as shiki]))
 
 (shiki/setCDN "shiki/")
@@ -94,22 +95,12 @@
              [:span graph]]))
         graphs)])))
 
-;; find all block's children with markers
-(def query-edn '[:find [(pull ?b [:db/id
-                                  :block/uuid
-                                  :block/parent
-                                  :block/left
-                                  :block/refs
-                                  :block/content
-                                  :block/marker
-                                  {:block/_parent ...}]) ...]
-                 :where
-                 [?b :block/uuid]
-                 [?b :block/marker]])
-
 (rum/defc graph-query [graph-name]
   [:div
-   (let [[query-string set-query] (rum/use-state (or (restore) (edn->str query-edn)))
+   (let [[query-string set-query]
+         (rum/use-state (or (restore)
+                            (edn->str (:block-with-markers-and-children examples/examples))))
+
          [data error] (use-graph-query graph-name query-string)
          highlight (use-highlight-fn)]
      (rum/use-effect! (fn [] (persist! query-string) #()) [query-string])

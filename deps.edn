@@ -12,7 +12,7 @@
   metosin/reitit                        {:mvn/version "0.5.18"}
   applied-science/js-interop            {:mvn/version "0.3.3"}
   nextjournal/clojure-mode              {:git/url "https://github.com/nextjournal/clojure-mode"
-                                         :sha "a83c87cd2bd2049b70613f360336a096d15c5518"}}
+                                         :sha "699a445ebf2767f41fd0b6eeed5a008511702be6"}}
 
  :aliases
  {:cljs

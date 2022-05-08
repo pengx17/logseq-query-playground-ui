@@ -19,15 +19,6 @@
   [file]
   (fsp/readFile file "utf8"))
 
-(defn file-exists?
-  [file]
-  (fsp/exists file))
-
-(defn directory?
-  [file]
-  (p/let [stat (fsp/lstat file)]
-    (.isDirectory stat)))
-
 ;; graph utils
 (defn get-graph-paths
   []
