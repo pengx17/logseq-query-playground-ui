@@ -23,15 +23,15 @@
     "@codemirror/search": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/view": "^0.18.0",
-    "lezer": "^0.13.1",
-    "lezer-clojure": "0.1.10",
-    "lezer-generator": "^0.13.0",
-    "lezer-tree": "^0.13.0",
     "concat-stream": "^2.0.0",
     "concurrently": "^7.1.0",
     "content-type": "^1.0.4",
     "cookies": "^0.8.0",
     "etag": "^1.8.1",
+    "lezer": "^0.13.1",
+    "lezer-clojure": "0.1.10",
+    "lezer-generator": "^0.13.0",
+    "lezer-tree": "^0.13.0",
     "lru": "^3.1.0",
     "multiparty": "^4.2.3",
     "nodemon": "^2.0.16",
@@ -39,9 +39,10 @@
     "random-bytes": "^1.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "shadow-cljs": "^2.18.0",
+    "shiki": "^0.10.1",
     "simple-encryptor": "^4.0.0",
     "swr": "^1.3.0",
-    "xregexp": "^5.1.0",
-    "shadow-cljs": "^2.18.0"
+    "xregexp": "^5.1.0"
   }
 }

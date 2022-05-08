@@ -4,7 +4,40 @@
             [clojure.pprint :as pprint]
             [promesa.core :as p]
             [rum.core :as rum]
-            [ui.code :as code]))
+            [ui.code :as code]
+            ["shiki" :as shiki]))
+
+(shiki/setCDN "shiki/")
+
+(def highlighter$ (shiki/getHighlighter #js{:theme "github-light" 
+                                            :langs ["clojure"]}))
+(def *hightlighter (atom nil))
+
+(p/then highlighter$ #(reset! *hightlighter %))
+
+(defn use-highlighter []
+  (let [[hl set-hl] (rum/use-state @*hightlighter)]
+    (rum/use-layout-effect!
+     (fn [] (p/then highlighter$
+                    (fn [_hl] (set-hl
+                               (fn [hl] (when (nil? hl) (set-hl _hl)))))) #()) []) hl))
+
+(defn use-highlight-fn []
+  (if-let [hl (use-highlighter)]
+    #(.codeToHtml hl % #js{:lang "clojure"})
+    identity))
+
+(defn edn->str [obj] (with-out-str (pprint/pprint obj)))
+
+;; persist to session storage
+(defonce session-storage-key "code.editor")
+
+(defn persist! [value]
+  (.setItem js/sessionStorage session-storage-key (edn->str value)))
+
+(defn restore []
+  (let [value (.getItem js/sessionStorage session-storage-key)]
+    (edn/read-string value)))
 
 ;; fetcher for swr
 (defn fetcher
@@ -61,18 +94,18 @@
              [:span graph]]))
         graphs)])))
 
-(def query-edn '[:find (pull ?b [*])
+(def query-edn '[:find ((pull ?b [*]) ...)
                  :where
                  [?b :block/marker]
                  [?b :block/page ?p]
                  [?p :block/journal? true]])
 
-(defn edn->str [obj] (with-out-str (pprint/pprint obj)))
-
 (rum/defc graph-query [graph-name]
   [:div
-   (let [[query-string set-query] (rum/use-state (edn->str query-edn))
-         [data error] (use-graph-query graph-name query-string)]
+   (let [[query-string set-query] (rum/use-state (or (restore) (edn->str query-edn)))
+         [data error] (use-graph-query graph-name query-string)
+         highlight (use-highlight-fn)]
+     (rum/use-effect! (fn [] (persist! query-string) #()) [query-string])
      (if graph-name
        [:div.relative
         [:textarea.border-2.border-gray-500.w-full.p-2.top-0.sticky.h-48.font-mono.hidden
@@ -85,8 +118,11 @@
            [:div (if data (str "Count: " (count data)) "loading ...")]
            (map-indexed
             (fn [idx row]
-              [:pre.whitespace-pre-wrap.py-2.hover:bg-gray-100 {:key idx}
-               (edn->str row)])
+              (let [raw-html (highlight (edn->str row))]
+                [:pre.whitespace-pre-wrap.py-2.text-xs.hover:bg-gray-100
+                 {:key idx
+                  :dangerouslySetInnerHTML
+                  {:__html raw-html}}]))
             data)])]
        [:span "no graph selected"]))])
 
