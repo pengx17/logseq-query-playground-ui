@@ -79,5 +79,5 @@
     (rum/use-effect!
      (fn [] #())
      [])
-    [:div.code-mirror-anchor.border-2.border-gray-500.w-full.p-2.top-0.bg-white.sticky
+    [:div.code-mirror-anchor.border-2.border-gray-500.w-full.p-2.top-0.bg-white.max-h-96.overflow-auto.sticky
      {:ref *anchor}]))

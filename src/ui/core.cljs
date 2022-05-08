@@ -9,7 +9,7 @@
 
 (shiki/setCDN "shiki/")
 
-(def highlighter$ (shiki/getHighlighter #js{:theme "github-light" 
+(def highlighter$ (shiki/getHighlighter #js{:theme "github-light"
                                             :langs ["clojure"]}))
 (def *hightlighter (atom nil))
 
@@ -94,11 +94,18 @@
              [:span graph]]))
         graphs)])))
 
-(def query-edn '[:find ((pull ?b [*]) ...)
+;; find all block's children with markers
+(def query-edn '[:find [(pull ?b [:db/id
+                                  :block/uuid
+                                  :block/parent
+                                  :block/left
+                                  :block/refs
+                                  :block/content
+                                  :block/marker
+                                  {:block/_parent ...}]) ...]
                  :where
-                 [?b :block/marker]
-                 [?b :block/page ?p]
-                 [?p :block/journal? true]])
+                 [?b :block/uuid]
+                 [?b :block/marker]])
 
 (rum/defc graph-query [graph-name]
   [:div
