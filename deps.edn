@@ -11,6 +11,7 @@
   macchiato/core                        {:mvn/version "0.2.22"}
   metosin/reitit                        {:mvn/version "0.5.18"}
   applied-science/js-interop            {:mvn/version "0.3.3"}
+  cljs-bean/cljs-bean                   {:mvn/version "1.8.0"}
   nextjournal/clojure-mode              {:git/url "https://github.com/nextjournal/clojure-mode"
                                          :sha "699a445ebf2767f41fd0b6eeed5a008511702be6"}}
 

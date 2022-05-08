@@ -1,17 +1,18 @@
 (ns ui.core
-  (:require ["swr$default" :as use-swr]
+  (:require ["shiki" :as shiki]
+            ["swr$default" :as use-swr]
+            [cljs-bean.core :as bean]
             [clojure.edn :as edn]
             [clojure.pprint :as pprint]
             [promesa.core :as p]
             [rum.core :as rum]
             [ui.code :as code]
-            [ui.example-queries :as examples]
-            ["shiki" :as shiki]))
+            [ui.example-queries :as examples]))
 
 (shiki/setCDN "shiki/")
 
 (def highlighter$ (shiki/getHighlighter #js{:theme "github-light"
-                                            :langs ["clojure"]}))
+                                            :langs ["clojure" "json"]}))
 (def *hightlighter (atom nil))
 
 (p/then highlighter$ #(reset! *hightlighter %))
@@ -25,7 +26,7 @@
 
 (defn use-highlight-fn []
   (if-let [hl (use-highlighter)]
-    #(.codeToHtml hl % #js{:lang "clojure"})
+    #(.codeToHtml hl % #js{:lang "json"})
     identity))
 
 (defn edn->str [obj] (with-out-str (pprint/pprint obj)))
@@ -116,7 +117,7 @@
            [:div (if data (str "Count: " (count data)) "loading ...")]
            (map-indexed
             (fn [idx row]
-              (let [raw-html (highlight (edn->str row))]
+              (let [raw-html (highlight (js/JSON.stringify (bean/->js row) nil 2))]
                 [:pre.whitespace-pre-wrap.py-2.text-xs.hover:bg-gray-100
                  {:key idx
                   :dangerouslySetInnerHTML

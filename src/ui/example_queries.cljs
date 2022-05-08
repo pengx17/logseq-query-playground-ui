@@ -16,4 +16,9 @@
    :query-by-id '[:find (pull ?p [*])
                   :where
                   [24 :block/uuid ?uid]
-                  [?p :block/uuid ?uid]]})
+                  [?p :block/uuid ?uid]]
+
+   :query-by-id-and-children '[:find (pull ?p [* {:block/_parent ...}])
+                               :where
+                               [68 :block/uuid ?uid]
+                               [?p :block/uuid ?uid]]})
