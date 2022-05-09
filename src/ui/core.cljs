@@ -53,7 +53,7 @@
 (def graphs-fetcher fetcher)
 (defn graphs-query-fetcher
   [[graph-name query]]
-  (fetcher (str "/graphs/" graph-name "?query=" query)))
+  (fetcher (str "/graphs/" graph-name "?query=" (js/encodeURIComponent query))))
 
 (defn use-graphs []
   (let [resp (use-swr "/graphs" graphs-fetcher)

@@ -51,19 +51,6 @@
     (respond {:status 200
               :body   {:graphs (map first graphs)}})))
 
-(defn get-graph-handler [request respond]
-  (p/let [graphs graphs/graph-paths
-          graph-name (get-in request [:path-params :name])
-          graph (some (fn [g]
-                        (when (= (first g) graph-name) g)) graphs)]
-    (if graph
-      (p/let [data (graphs/slurp (second graph))]
-        (respond {:status 200
-                  :body  {:name graph-name
-                          :data data}}))
-      (respond {:status 404
-                :body   {:message "Not found"}}))))
-
 (defn run-graph-query-handler [request respond]
   (p/catch
    (p/let [graph-name (get-in request [:path-params :name])
